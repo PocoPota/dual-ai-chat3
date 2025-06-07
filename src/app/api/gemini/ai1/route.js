@@ -1,7 +1,5 @@
-import { GoogleGenAI } from '@google/genai';
-import { NextResponse } from "next/server";
-
-let chat = null;
+import { getChatInstance } from '@/lib/ai1ChatStore';
+import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   const body = await req.json();
@@ -12,16 +10,8 @@ export async function POST(req) {
     return NextResponse.json({ error: "Missing API key" }, { status: 400 });
   }
 
-  const ai = new GoogleGenAI({ apiKey: apiKey });
-
   try {
-
-    if (!chat) {
-      chat = ai.chats.create({
-        model: 'gemini-2.0-flash',
-        history: [],
-      });
-    }
+    const chat = getChatInstance(apiKey);
     const response = await chat.sendMessage({message: message});
     return NextResponse.json({ reply: response.text }, { status: 200 });
   } catch (error) {
