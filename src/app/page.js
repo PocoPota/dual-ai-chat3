@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import styles from "./page.module.scss";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState('');
@@ -26,15 +27,32 @@ export default function Home() {
   return (
     <main>
       <h1>Hello World!</h1>
-      <div>
+      <div className={styles.apiKey}>
+        <label>Gemini APIキー: </label>
         <input type="password" placeholder="Enter your Gemini API Key..." value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
       </div>
-      <div>
+      <div className={styles.sysP}>
+        <div>
+          <label>AI1のシステムプロンプト(個別情報): </label>
+          <textarea placeholder="AI1のシステムプロンプト"></textarea>
+        </div>
+        <div>
+          <label>AI2のシステムプロンプト(個別情報): </label>
+          <textarea placeholder="AI2のシステムプロンプト"></textarea>
+        </div>
+        <div>
+          <label>全体のシステムプロンプト(状況情報): </label>
+          <textarea placeholder="全体のシステムプロンプト"></textarea>
+        </div>
+      </div>
+      <div className={styles.control}>
         <button onClick={callGeminiAPI}>Start</button>
+        <button>Stop</button>
+        <button>Memory Reset</button>
       </div>
-      <div>
+      <section className={styles.chatSpace}>
         <p>{responseText}</p>
-      </div>
+      </section>
     </main>
   );
 }
