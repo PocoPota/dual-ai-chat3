@@ -13,7 +13,8 @@ export function getChatInstance(apiKey){
   return chat;
 }
 
-export function resetChat() {
+export function resetChat1() {
+  console.log('リセットするよーー！')
   chat = null;
 }
 

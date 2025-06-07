@@ -44,6 +44,19 @@ export default function Home() {
     }
   }
 
+  const reset = async() => {
+    const res = await fetch('/api/gemini/reset', {
+      method: 'POST',
+    });
+  
+    const data = await res.json();
+    if (res.ok) {
+      console.log(data.message);
+    } else {
+      console.error(data);
+    }
+  }
+
   useEffect(() => {
     console.log("会話履歴更新:", history);
   }, [history]);
@@ -81,6 +94,7 @@ export default function Home() {
       <div className={styles.control}>
         <button onClick={startChat}>Start</button>
         <button>Stop</button>
+        <button onClick={reset}>Reset</button>
       </div>
       <section className={styles.chatSpace}>
         <ul>
