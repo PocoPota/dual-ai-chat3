@@ -1,28 +1,61 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.scss";
 
 export default function Home() {
+  // api key
   const [apiKey, setApiKey] = useState('');
-  const [responseText, setResponseText] = useState('');
+
+  // システムプロンプト
+  const [sysP1, setSysP1] = useState('');
+  const [sysP2, setSysP2] = useState('');
+  const [sysPAll, setSysPAll] = useState('');
+
+  // 会話履歴HTML
+  const [history, setHistory] = useState([]);
+
+  // for dev
+  const [message, setMessage] = useState('');
 
   const callGeminiAPI = async () => {
-    const res = await fetch('/api/gemini', {
+    const res = await fetch('/api/gemini/ai1', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ apiKey }),
+      body: JSON.stringify({ apiKey, message }),
     });
 
     const data = await res.json();
+    console.log("Status:", res.status);
+    console.log("Response:", data);
     if (res.ok) {
-      setResponseText(data.text);
+      return data.reply;
     } else {
-      setResponseText(`Error: ${data.error}`);
+      console.log('エラーーだよ！！');
+      return 'エラーです。ごめんね。';
     }
   };
+
+  const startChat = () => {
+    if (!apiKey) {
+      alert("APIキーが設定されていません。");
+    }
+  }
+
+  useEffect(() => {
+    console.log("会話履歴更新:", history);
+  }, [history]);
+
+  const sendMessage = async () => {
+    // ユーザーのメッセージをhistoryに追加
+    setHistory(prev => [...prev, { role: "user", text: message }]);
+    // AIに話す
+    const aiMessage = await callGeminiAPI();
+    // AIのメッセージをhistoryに追加
+    setHistory(prev => [...prev, { role: "model", text: aiMessage }]);
+  }
 
   return (
     <main>
@@ -46,13 +79,22 @@ export default function Home() {
         </div>
       </div>
       <div className={styles.control}>
-        <button onClick={callGeminiAPI}>Start</button>
+        <button onClick={startChat}>Start</button>
         <button>Stop</button>
-        <button>Memory Reset</button>
       </div>
       <section className={styles.chatSpace}>
-        <p>{responseText}</p>
+        <ul>
+          {history.map((entry, index) => (
+            <li key={index}>
+              {entry.role === 'user' ? 'あなた' : 'AI'}: {entry.text}
+            </li>
+          ))}
+        </ul>
       </section>
+      <div>
+        <input type="text" onChange={(e) => setMessage(e.target.value)} />
+        <button onClick={sendMessage}>送信</button>
+      </div>
     </main>
   );
 }
