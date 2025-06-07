@@ -24,7 +24,7 @@ export default function Home() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ apiKey, message }),
+      body: JSON.stringify({ apiKey, message, sysP1 }),
     });
 
     const data = await res.json();
@@ -80,7 +80,7 @@ export default function Home() {
       <div className={styles.sysP}>
         <div>
           <label>AI1のシステムプロンプト(個別情報): </label>
-          <textarea placeholder="AI1のシステムプロンプト"></textarea>
+          <textarea placeholder="AI1のシステムプロンプト" value={sysP1} onChange={(e)=>setSysP1(e.target.value)}></textarea>
         </div>
         <div>
           <label>AI2のシステムプロンプト(個別情報): </label>
