@@ -2,9 +2,9 @@ import { GoogleGenAI } from '@google/genai';
 
 let chat = null;
 
-export function getChatInstance(apiKey, sysP2){
+export function getChatInstance(apiKey, sysP2, isFirstChat2){
   const ai = new GoogleGenAI({ apiKey: apiKey });
-  if (!chat) {
+  if (isFirstChat2) {
     chat = ai.chats.create({
       model: 'gemini-2.0-flash',
       config: {
@@ -15,10 +15,3 @@ export function getChatInstance(apiKey, sysP2){
   }
   return chat;
 }
-
-export function resetChat2() {
-  console.log('リセットするよーー！')
-  chat = null;
-}
-
-export { chat };

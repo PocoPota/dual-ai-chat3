@@ -18,19 +18,24 @@ export default function Home() {
   // for dev
   const [message, setMessage] = useState('');
 
+  // for reset
+  const [isFirstChat1, setIsFirstChat1] = useState(true);
+  const [isFirstChat2, setIsFirstChat2] = useState(true);
+
   const callGeminiAPI = async () => {
     const res = await fetch('/api/gemini/ai1', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ apiKey, message, sysP1: `${sysP1} / ${sysPAll}` }),
+      body: JSON.stringify({ apiKey, message, sysP1: `${sysP1} / ${sysPAll}`, isFirstChat1 }),
     });
 
     const data = await res.json();
     console.log("Status:", res.status);
     console.log("Response:", data);
     if (res.ok) {
+      setIsFirstChat1(false);
       return data.reply;
     } else {
       console.log('エラーーだよ！！');
@@ -45,16 +50,7 @@ export default function Home() {
   }
 
   const reset = async() => {
-    const res = await fetch('/api/gemini/reset', {
-      method: 'POST',
-    });
-  
-    const data = await res.json();
-    if (res.ok) {
-      console.log(data.message);
-    } else {
-      console.error(data);
-    }
+    setIsFirstChat1(true);
   }
 
   useEffect(() => {
