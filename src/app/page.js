@@ -29,7 +29,7 @@ export default function Home() {
       <h1>Hello World!</h1>
       <div className={styles.apiKey}>
         <label>Gemini APIキー: </label>
-        <input type="password" placeholder="Enter your Gemini API Key..." value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+        <input type="password" placeholder="Gemini API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
       </div>
       <div className={styles.sysP}>
         <div>
