@@ -24,7 +24,7 @@ export default function Home() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ apiKey, message, sysP1 }),
+      body: JSON.stringify({ apiKey, message, sysP1: `${sysP1} / ${sysPAll}` }),
     });
 
     const data = await res.json();
