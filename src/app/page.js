@@ -18,6 +18,8 @@ export default function Home() {
 
   const [isFirstChat1, setIsFirstChat1] = useState(true);
   const [isFirstChat2, setIsFirstChat2] = useState(true);
+  const isFirstChat1Ref = useRef(true);
+  const isFirstChat2Ref = useRef(true);
 
   const [isChatting, setIsChatting] = useState(false);
   const isChattingRef = useRef(false);
@@ -28,7 +30,12 @@ export default function Home() {
 
   useEffect(()=>{
     historyRef.current = history;
-  }, [history])
+  }, [history]);
+
+  useEffect(()=>{
+    isFirstChat1Ref.current = isFirstChat1;
+    isFirstChat2Ref.current = isFirstChat2;
+  }, [isFirstChat1, isFirstChat2]);
 
   const callGeminiAPI1 = async (message) => {
     const res = await fetch('/api/gemini/ai1', {
@@ -36,7 +43,7 @@ export default function Home() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ apiKey, message, sysP1: `${sysP1} / ${sysPAll}`, isFirstChat1 }),
+      body: JSON.stringify({ apiKey, message, sysP1: `${sysP1} / ${sysPAll}`, isFirstChat1: isFirstChat1Ref.current }),
     });
 
     const data = await res.json();
@@ -44,6 +51,7 @@ export default function Home() {
     console.log("Response:", data);
     if (res.ok) {
       setIsFirstChat1(false);
+      isFirstChat1Ref.current = false;
       return data.reply;
     } else {
       console.log('エラーーだよ！！');
@@ -57,7 +65,7 @@ export default function Home() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ apiKey, message, sysP2: `${sysP2} / ${sysPAll}`, isFirstChat2 }),
+      body: JSON.stringify({ apiKey, message, sysP2: `${sysP2} / ${sysPAll}`, isFirstChat2: isFirstChat2Ref.current }),
     });
 
     const data = await res.json();
@@ -65,6 +73,7 @@ export default function Home() {
     console.log("Response:", data);
     if (res.ok) {
       setIsFirstChat2(false);
+      isFirstChat2Ref.current = false;
       return data.reply;
     } else {
       console.log('エラーーだよ！！');
@@ -110,6 +119,8 @@ export default function Home() {
     stopChat;
     setIsFirstChat1(true);
     setIsFirstChat2(true);
+    isFirstChat1Ref.current = true;
+    isFirstChat2Ref.current = true;
     setHistory([]);
     historyRef.current = [];
   }
