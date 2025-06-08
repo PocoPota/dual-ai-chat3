@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.scss";
 
 export default function Home() {
@@ -14,15 +14,23 @@ export default function Home() {
 
   // 会話履歴HTML
   const [history, setHistory] = useState([]);
+  const historyRef = useRef([]);
 
-  // for dev
-  const [message, setMessage] = useState('');
-
-  // for reset
   const [isFirstChat1, setIsFirstChat1] = useState(true);
   const [isFirstChat2, setIsFirstChat2] = useState(true);
 
-  const callGeminiAPI = async () => {
+  const [isChatting, setIsChatting] = useState(false);
+  const isChattingRef = useRef(false);
+
+  useEffect(()=>{
+    isChattingRef.current = isChatting;
+  }, [isChatting]);
+
+  useEffect(()=>{
+    historyRef.current = history;
+  }, [history])
+
+  const callGeminiAPI1 = async (message) => {
     const res = await fetch('/api/gemini/ai1', {
       method: 'POST',
       headers: {
@@ -43,28 +51,72 @@ export default function Home() {
     }
   };
 
-  const startChat = () => {
+  const callGeminiAPI2 = async (message) => {
+    const res = await fetch('/api/gemini/ai2', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ apiKey, message, sysP2: `${sysP2} / ${sysPAll}`, isFirstChat2 }),
+    });
+
+    const data = await res.json();
+    console.log("Status:", res.status);
+    console.log("Response:", data);
+    if (res.ok) {
+      setIsFirstChat2(false);
+      return data.reply;
+    } else {
+      console.log('エラーーだよ！！');
+      return 'エラーです。ごめんね。';
+    }
+  };
+
+  const startChat = async() => {
     if (!apiKey) {
       alert("APIキーが設定されていません。");
     }
+
+    setIsChatting(true);
+    isChattingRef.current = true;
+    let isAI1Turn = true;
+
+    while(isChattingRef.current){
+      const currentSender = isAI1Turn ? callGeminiAPI1 : callGeminiAPI2;
+      const currentSenderName = isAI1Turn ? 'AI1' : 'AI2';
+
+      const latestMessage = historyRef.current.length > 0
+      ? historyRef.current[historyRef.current.length - 1].text
+      : "";
+      console.log(latestMessage);
+
+      const reply = await currentSender(latestMessage);
+      setHistory(prev => [...prev, { role: currentSenderName, text: reply }]);
+
+      isAI1Turn = !isAI1Turn;
+
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3秒待機
+    }
+    setIsChatting(false);
+    isChattingRef.current = false;
+  }
+
+  const stopChat = () =>{
+    setIsChatting(false);
+    isChattingRef.current = false;
   }
 
   const reset = async() => {
+    stopChat;
     setIsFirstChat1(true);
+    setIsFirstChat2(true);
+    setHistory([]);
+    historyRef.current = [];
   }
 
-  useEffect(() => {
-    console.log("会話履歴更新:", history);
+  useEffect(()=>{
+    console.log(history);
   }, [history]);
-
-  const sendMessage = async () => {
-    // ユーザーのメッセージをhistoryに追加
-    setHistory(prev => [...prev, { role: "user", text: message }]);
-    // AIに話す
-    const aiMessage = await callGeminiAPI();
-    // AIのメッセージをhistoryに追加
-    setHistory(prev => [...prev, { role: "model", text: aiMessage }]);
-  }
 
   return (
     <main>
@@ -80,31 +132,27 @@ export default function Home() {
         </div>
         <div>
           <label>AI2のシステムプロンプト(個別情報): </label>
-          <textarea placeholder="AI2のシステムプロンプト"></textarea>
+          <textarea placeholder="AI2のシステムプロンプト" value={sysP2} onChange={(e)=>setSysP2(e.target.value)}></textarea>
         </div>
         <div>
           <label>全体のシステムプロンプト(状況情報): </label>
-          <textarea placeholder="全体のシステムプロンプト"></textarea>
+          <textarea placeholder="全体のシステムプロンプト" value={sysPAll} onChange={(e)=>setSysPAll(e.target.value)}></textarea>
         </div>
       </div>
       <div className={styles.control}>
         <button onClick={startChat}>Start</button>
-        <button>Stop</button>
+        <button onClick={stopChat}>Stop</button>
         <button onClick={reset}>Reset</button>
       </div>
       <section className={styles.chatSpace}>
         <ul>
           {history.map((entry, index) => (
             <li key={index}>
-              {entry.role === 'user' ? 'あなた' : 'AI'}: {entry.text}
+              {entry.role}: {entry.text}
             </li>
           ))}
         </ul>
       </section>
-      <div>
-        <input type="text" onChange={(e) => setMessage(e.target.value)} />
-        <button onClick={sendMessage}>送信</button>
-      </div>
     </main>
   );
 }
