@@ -54,8 +54,7 @@ export default function Home() {
       isFirstChat1Ref.current = false;
       return data.reply;
     } else {
-      console.log('エラーーだよ！！');
-      return 'エラーです。ごめんね。';
+      return 'SystemError: コンソールを確認してください';
     }
   };
 
@@ -76,8 +75,7 @@ export default function Home() {
       isFirstChat2Ref.current = false;
       return data.reply;
     } else {
-      console.log('エラーーだよ！！');
-      return 'エラーです。ごめんね。';
+      return 'SystemError: コンソールを確認してください';
     }
   };
 
@@ -97,7 +95,6 @@ export default function Home() {
       const latestMessage = historyRef.current.length > 0
       ? historyRef.current[historyRef.current.length - 1].text
       : "";
-      console.log(latestMessage);
 
       const reply = await currentSender(latestMessage);
       setHistory(prev => [...prev, { role: currentSenderName, text: reply }]);
@@ -125,13 +122,9 @@ export default function Home() {
     historyRef.current = [];
   }
 
-  useEffect(()=>{
-    console.log(history);
-  }, [history]);
-
   return (
     <main>
-      <h1>Hello World!</h1>
+      <h1>Dual AI Chat</h1>
       <div className={styles.apiKey}>
         <label>Gemini APIキー: </label>
         <input type="password" placeholder="Gemini API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
