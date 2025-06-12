@@ -101,7 +101,7 @@ export default function Home() {
 
       isAI1Turn = !isAI1Turn;
 
-      await new Promise(resolve => setTimeout(resolve, 3000)); // 3秒待機
+      await new Promise(resolve => setTimeout(resolve, 4500)); // 3秒待機
     }
     setIsChatting(false);
     isChattingRef.current = false;
